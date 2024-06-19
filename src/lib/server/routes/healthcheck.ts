@@ -1,14 +1,14 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
-const getHelloSpec = createRoute({
-  description: "Description of Hello endpoint.",
+const getHealthcheckSpec = createRoute({
+  description: "Healthceck endpoint.",
   tags: ["Greetings"],
   method: "get",
-  path: "hello",
+  path: "healthceck",
   responses: {
     200: {
       content: {
-        "application/json": {
+        "text/html": {
           schema: z.object({
             message: z.string(),
           }),
@@ -19,8 +19,8 @@ const getHelloSpec = createRoute({
   },
 });
 
-const hello = new OpenAPIHono().openapi(getHelloSpec, (c) => {
-  return c.json({ message: "Hello from Next.js" }, 200);
+const healthceck = new OpenAPIHono().openapi(getHealthcheckSpec, (c) => {
+  return c.text("OK", 200);
 });
 
-export { hello };
+export { healthceck };
