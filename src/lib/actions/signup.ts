@@ -1,31 +1,14 @@
 'use server'
 
-import { TimeSpan, createDate } from "oslo";
-import { generateRandomString, alphabet } from "oslo/crypto";
-import { deleteUserCode, insertCode } from "../server/mutations/verification-code";
-import { InsertCode } from "../types/user";
+
 import { generateIdFromEntropySize } from "lucia";
 import { insertUser } from "../server/mutations/user";
 import { queryEmail } from "../server/queries/user";
 import { sendEmailVerificationCode } from "../server/mailer";
 import * as argon2 from "argon2";
 import { createSession } from "../server/auth";
+import { generateEmailVerificationCode } from './verify'
 
-const generateEmailVerificationCode = async (userId: string, email: string): Promise<string> => {
-  await deleteUserCode(userId);
-  const code = generateRandomString(8, alphabet("0-9"));
-
-  const verificationCode: InsertCode = {
-    id: generateIdFromEntropySize(10),
-    userId: userId,
-    email,
-    code,
-    expiresAt: createDate(new TimeSpan(15, "m")) // 15 minutes
-  };
-  await insertCode(verificationCode);
-
-  return code;
-}
 
 const isValidEmail = (email: string): boolean => {
   return /.+@.+/.test(email);
@@ -59,7 +42,11 @@ export const signup = async (prevState: any, formData: FormData) => {
   await createSession(userId) // Create session cookies
 
   const verificationCode = await generateEmailVerificationCode(userId, email);
-  await sendEmailVerificationCode(email, verificationCode);
+  await sendEmailVerificationCode(
+    email,
+    verificationCode.code!,
+    verificationCode.expiresAt!.toString()
+  );
 
   return { status: 200, message: "Account successfully registered." }
 }

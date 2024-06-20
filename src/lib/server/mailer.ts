@@ -13,15 +13,15 @@ export const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendEmailVerificationCode = (email: string, code: string) =>
+export const sendEmailVerificationCode = (email: string, code: string, expiresAt: string) =>
   transporter.sendMail({
     from: `Daedalus Dev Team <${process.env.SMTP_USER}>`,
     to: email,
-    subject: 'Login Code',
+    subject: 'Verify your Account',
     html: `
 
-<h2>Your login code is <span style="background-color: #1d1d1d; color: #fff; padding: 5px"><b>${code}</b></span></h2>
-
-<p> - <i>Daedalues Dev</i></p>
+<h2>Your verification code is <span style="background-color: #1d1d1d; color: #fff; padding: 5px"><b>${code}</b></span></h2>
+<p>This code will expire at ${expiresAt}.</p>
+<p> - <i>Daedalus Dev</i></p>
 `
   });

@@ -5,9 +5,10 @@ import { redirect } from "next/navigation";
 export default async function page() {
   const { session, user } = await validateSession();
   if (!session) redirect('/login')
+  if (!user?.emailVerified) redirect('/verify')
 
   return (
-    <div><p>Hello user {user?.firstName}!</p>
+    <div><p>Hello, {user?.firstName}!</p>
       <Logout />
     </div>
   )

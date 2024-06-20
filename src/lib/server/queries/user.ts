@@ -1,5 +1,14 @@
-import { sql, eq } from "drizzle-orm";
+import { sql, eq, and } from "drizzle-orm";
 import { db } from "../db";
-import { users } from "../schema/user";
+import { users, verificationCodes } from "../schema/user";
 
 export const queryEmail = db.select().from(users).where(eq(users.email, sql.placeholder('email')));
+
+export const queryVerificationCode = db.select()
+  .from(verificationCodes)
+  .where(
+    and(
+      eq(verificationCodes.userId, sql.placeholder('userId')),
+      eq(verificationCodes.code, sql.placeholder('code'))
+    )
+  );
