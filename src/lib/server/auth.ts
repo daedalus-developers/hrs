@@ -14,6 +14,13 @@ export const lucia = new Lucia(adapter, {
       // set to `true` when using HTTPS
       secure: process.env.NODE_ENV === "production",
     },
+    getUserAttributes: (attributes) => {
+      return {
+        // we don't need to expose the password hash!
+        email: attributes.email
+      };
+    }
+
   },
 });
 
@@ -21,5 +28,10 @@ export const lucia = new Lucia(adapter, {
 declare module "lucia" {
   interface Register {
     Lucia: typeof lucia;
+    DatabaseUserAttributes: {
+      email: string;
+      email_verified: boolean;
+    };
+
   }
 }
