@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { invalidateSession } from "../server/auth";
+import { invalidateSession } from "../server/auth"
 
 export const logout = async () => {
   'use server'

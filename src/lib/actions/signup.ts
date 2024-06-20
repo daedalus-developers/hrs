@@ -1,14 +1,12 @@
 'use server'
 
-
 import { generateIdFromEntropySize } from "lucia";
 import { insertUser } from "../server/mutations/user";
 import { queryEmail } from "../server/queries/user";
 import { sendEmailVerificationCode } from "../server/mailer";
-import * as argon2 from "argon2";
-import { createSession } from "../server/auth";
 import { generateEmailVerificationCode } from './verify'
-
+import { createSession } from "../server/auth";
+import { Argon2id } from "../utils/argon2";
 
 const isValidEmail = (email: string): boolean => {
   return /.+@.+/.test(email);
@@ -27,7 +25,8 @@ export const signup = async (prevState: any, formData: FormData) => {
   if (result?.length > 0) return { status: 400, message: "Email already exists" }
 
   const userId = generateIdFromEntropySize(10)
-  const passwordHash = await argon2.hash(password)
+
+  const passwordHash = await new Argon2id().hash(password);
 
   const user = {
     id: userId,
@@ -39,7 +38,9 @@ export const signup = async (prevState: any, formData: FormData) => {
   };
 
   await insertUser(user) // Save user to DB
-  await createSession(userId) // Create session cookies
+
+  await createSession(userId)// Create session cookies
+
 
   const verificationCode = await generateEmailVerificationCode(userId, email);
   await sendEmailVerificationCode(

@@ -8,7 +8,7 @@ export default async function page() {
   if (!user?.emailVerified) redirect('/verify')
 
   return (
-    <div><p>Hello, {user?.firstName}!</p>
+    <div><p>Hello, {user!.firstName}!</p>
       <Logout />
     </div>
   )

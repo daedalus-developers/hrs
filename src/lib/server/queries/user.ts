@@ -1,6 +1,6 @@
 import { sql, eq, and } from "drizzle-orm";
 import { db } from "../db";
-import { users, verificationCodes } from "../schema/user";
+import { users, verificationCodes } from "../schemas/user";
 
 export const queryEmail = db.select().from(users).where(eq(users.email, sql.placeholder('email')));
 

@@ -2,12 +2,12 @@
 
 import { updateEmailVerified } from "../server/mutations/user"
 import { queryVerificationCode } from "../server/queries/user"
-import { TimeSpan, createDate } from "oslo";
-import { generateRandomString, alphabet } from "oslo/crypto";
+import { generateRandomString, alphabet } from "@oslojs/crypto/random";
 import { deleteUserCode, insertCode } from "../server/mutations/user";
 import { InsertCode } from "../types/user";
 import { generateIdFromEntropySize } from "lucia";
 import { sendEmailVerificationCode } from "../server/mailer";
+import { TimeSpan, createDate } from "../utils/timespan";
 
 export const verifyAccount = async (prevState: any, formData: FormData) => {
   const userId = formData.get('userId') as string
@@ -43,6 +43,7 @@ export const generateEmailVerificationCode = async (userId: string, email: strin
     code,
     expiresAt: createDate(new TimeSpan(15, "m")) // 15 minutes
   };
+
   await insertCode(verificationCode);
 
   return verificationCode

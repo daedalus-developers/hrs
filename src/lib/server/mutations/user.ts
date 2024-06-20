@@ -1,5 +1,5 @@
 import { InsertUser, InsertCode } from "@/lib/types/user";
-import { users, verificationCodes } from "../schema/user";
+import { users, verificationCodes } from "../schemas/user";
 import { db } from "../db";
 import { eq } from "drizzle-orm";
 
