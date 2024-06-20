@@ -1,6 +1,6 @@
-import Logout from '@/lib/components/Logout';
-import VerificationForm from '@/lib/components/VerificationForm';
-import { validateSession } from '@/lib/server/auth';
+import Logout from '@/components/Logout';
+import VerificationForm from '@/components/VerificationForm';
+import { validateSession } from '@/server/auth';
 import { redirect } from 'next/navigation';
 
 export default async function page() {

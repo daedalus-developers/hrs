@@ -1,6 +1,6 @@
 'use client'
 import { useFormState } from 'react-dom';
-import { login } from '../actions/login';
+import { login } from '@/actions/login';
 
 
 const initialState = { status: 0, message: '' }

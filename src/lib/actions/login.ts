@@ -1,9 +1,9 @@
 'use server'
 
-import { queryEmail } from "../server/queries/user"
-import { createSession } from "../server/auth";
-import { SelectUser } from "../types/user";
-import { Argon2id } from "../utils/argon2";
+import { createSession } from "@/server/auth";
+import { queryEmail } from "@/server/queries/user";
+import { SelectUser } from "@/types/user";
+import { Argon2id } from "@/utils/argon2";
 
 export const login = async (prevState: any, formData: FormData) => {
   const email = formData.get('email') as string

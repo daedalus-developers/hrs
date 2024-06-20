@@ -1,13 +1,13 @@
 'use server'
 
-import { updateEmailVerified } from "../server/mutations/user"
-import { queryVerificationCode } from "../server/queries/user"
+import { updateEmailVerified } from "@/server/mutations/user"
+import { queryVerificationCode } from "@/server/queries/user"
 import { generateRandomString, alphabet } from "@oslojs/crypto/random";
-import { deleteUserCode, insertCode } from "../server/mutations/user";
-import { InsertCode } from "../types/user";
+import { deleteUserCode, insertCode } from "@/server/mutations/user";
+import { InsertCode } from "@/types/user";
 import { generateIdFromEntropySize } from "lucia";
-import { sendEmailVerificationCode } from "../server/mailer";
-import { TimeSpan, createDate } from "../utils/timespan";
+import { sendEmailVerificationCode } from "@/server/mailer";
+import { TimeSpan, createDate } from "@/utils/timespan";
 
 export const verifyAccount = async (prevState: any, formData: FormData) => {
   const userId = formData.get('userId') as string
@@ -34,8 +34,7 @@ export const resendVerificationCode = async (formData: FormData) => {
 
 export const generateEmailVerificationCode = async (userId: string, email: string): Promise<InsertCode> => {
   await deleteUserCode(userId);
-  const code = generateRandomString(8, alphabet("0-9"));
-
+  const code = generateRandomString(8, alphabet("0-9"))
   const verificationCode: InsertCode = {
     id: generateIdFromEntropySize(10),
     userId: userId,

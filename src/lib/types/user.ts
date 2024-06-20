@@ -1,5 +1,5 @@
 import { InferInsertModel, InferSelectModel } from "drizzle-orm";
-import { sessions, users, verificationCodes } from "../server/schema/user";
+import { sessions, users, verificationCodes } from "@/schemas/user";
 
 export type InsertUser = InferInsertModel<typeof users>;
 export type InsertSession = InferInsertModel<typeof sessions>

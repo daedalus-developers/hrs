@@ -1,12 +1,12 @@
 'use server'
 
+import { createSession } from "@/server/auth";
+import { insertUser } from "@/server/mutations/user";
+import { queryEmail } from "@/server/queries/user";
+import { Argon2id } from "@/utils/argon2";
 import { generateIdFromEntropySize } from "lucia";
-import { insertUser } from "../server/mutations/user";
-import { queryEmail } from "../server/queries/user";
-import { sendEmailVerificationCode } from "../server/mailer";
-import { generateEmailVerificationCode } from './verify'
-import { createSession } from "../server/auth";
-import { Argon2id } from "../utils/argon2";
+import { generateEmailVerificationCode } from "./verify";
+import { sendEmailVerificationCode } from "@/server/mailer";
 
 const isValidEmail = (email: string): boolean => {
   return /.+@.+/.test(email);

@@ -1,5 +1,5 @@
-import Login from '@/lib/components/Login'
-import { validateSession } from '@/lib/server/auth'
+import Login from '@/components/Login'
+import { validateSession } from '@/server/auth'
 import { redirect } from 'next/navigation'
 
 export default async function page() {

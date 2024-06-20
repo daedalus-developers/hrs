@@ -21,27 +21,31 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
-      "@/actions": [
-        "./src/lib/actions/"
+      "@/actions/*": [
+        "src/lib/actions/*"
       ],
-      "@components": [
-        "./src/lib/components"
+      "@/components/*": [
+        "src/lib/components/*"
       ],
-      "@/mutations": [
-        "./src/lib/server/mutations/"
+      "@/server/*": [
+        "src/lib/server/*"
       ],
-      "@/queries": [
-        "./src/lib/server/queries/"
+      "@/mutations/*": [
+        "src/lib/server/mutations/*"
       ],
-      "@/schemas": [
-        "./src/lib/server/schemas/"
+      "@/queries/*": [
+        "src/lib/server/queries/*"
       ],
-      "@/types": [
-        "./src/lib/types/"
+      "@/schemas/*": [
+        "src/lib/server/schemas/*"
       ],
-      "@/*": [
-        "./src/*"
+      "@/types/*": [
+        "src/lib/types/*"
+      ],
+      "@/utils/*": [
+        "src/lib/utils/*"
       ]
     }
   },

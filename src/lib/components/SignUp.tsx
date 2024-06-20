@@ -1,6 +1,6 @@
 'use client'
 
-import { signup } from '@/lib/actions/signup'
+import { signup } from '@/actions/signup'
 import { useFormState } from 'react-dom';
 
 const initialState = { status: 0, message: '' }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useFormState } from "react-dom";
-import { resendVerificationCode, verifyAccount } from "../actions/verify";
+import { resendVerificationCode, verifyAccount } from "@/actions/verify";
 
 const initialState = { status: 0, message: '' }
 
