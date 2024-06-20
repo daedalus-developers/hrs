@@ -6,11 +6,10 @@ import { deleteUserCode, insertCode } from "../server/mutations/verification-cod
 import { InsertCode } from "../types/user";
 import { generateIdFromEntropySize } from "lucia";
 import { insertUser } from "../server/mutations/user";
-import { lucia } from "../server/auth";
-import { cookies } from "next/headers";
 import { queryEmail } from "../server/queries/user";
 import { sendEmailVerificationCode } from "../server/mailer";
 import * as argon2 from "argon2";
+import { createSession } from "../server/auth";
 
 const generateEmailVerificationCode = async (userId: string, email: string): Promise<string> => {
   await deleteUserCode(userId);
@@ -32,24 +31,19 @@ const isValidEmail = (email: string): boolean => {
   return /.+@.+/.test(email);
 }
 
-const checkEmail = async (email: string): Promise<{ message: string } | undefined> => {
-  const result = await queryEmail.execute({ email: email });
-  if (result?.length > 0) return { message: "Email already exists" }
-  return
-}
-
 export const signup = async (prevState: any, formData: FormData) => {
   const lastName = formData.get('lastName') as string;
   const firstName = formData.get('firstName') as string;
   const email = formData.get('email');
   const password = formData.get('password');
 
-  if (!email || typeof email !== "string" || !isValidEmail(email)) return { message: "Invalid email" }
-  if (!password || typeof password !== "string" || password.length < 6) return { message: "Invalid password" }
+  if (!email || typeof email !== "string" || !isValidEmail(email)) return { status: 400, message: "Invalid email" }
+  if (!password || typeof password !== "string" || password.length < 6) return { status: 400, message: "Invalid password" }
 
-  checkEmail(email);
+  const result = await queryEmail.execute({ email: email });
+  if (result?.length > 0) return { status: 400, message: "Email already exists" }
 
-  const userId = generateIdFromEntropySize(10);
+  const userId = generateIdFromEntropySize(10)
   const passwordHash = await argon2.hash(password)
 
   const user = {
@@ -61,23 +55,11 @@ export const signup = async (prevState: any, formData: FormData) => {
     password: passwordHash
   };
 
-  console.log(passwordHash)
-
-
-  await insertUser(user)
-
-  const session = await lucia.createSession(userId, {});
-  const sessionCookie = lucia.createSessionCookie(session.id);
-  cookies().set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes
-  )
-
-  console.log("cookeis successfully set")
+  await insertUser(user) // Save user to DB
+  await createSession(userId) // Create session cookies
 
   const verificationCode = await generateEmailVerificationCode(userId, email);
   await sendEmailVerificationCode(email, verificationCode);
 
-  return { message: "Account successfully registered." }
+  return { status: 200, message: "Account successfully registered." }
 }

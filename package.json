@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:check": "drizzle-kit check",
+    "db:drop": "drizzle-kit drop",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:pull": "drizzle-kit introspect",
+    "db:push": "drizzle-kit push"
   },
   "dependencies": {
     "@hono/swagger-ui": "^0.2.2",
@@ -16,6 +22,7 @@
     "argon2": "^0.40.3",
     "argon2-browser": "^1.18.0",
     "base64-loader": "^1.0.0",
+    "dotenv": "^16.4.5",
     "drizzle-orm": "^0.31.2",
     "framer-motion": "^11.2.11",
     "hono": "^4.4.7",
