@@ -41,7 +41,7 @@ export default function SignUp() {
                     labelPlacement="inside"
                     isRequired
                     name="email"
-                    type="text"
+                    type="email"
                     description="Enter your Email Address"
                     isClearable={true}
                 />
