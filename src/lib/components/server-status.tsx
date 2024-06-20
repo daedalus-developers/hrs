@@ -1,6 +1,6 @@
 "use client";
 
-import { api } from "@/lib/client";
+import { api } from "@utils/client";
 import { useState, useEffect } from "react";
 
 type Props = {

@@ -1,10 +1,6 @@
 {
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -23,39 +19,24 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/actions/*": [
-        "src/lib/actions/*"
-      ],
-      "@/components/*": [
-        "src/lib/components/*"
-      ],
-      "@/server/*": [
-        "src/lib/server/*"
-      ],
-      "@/mutations/*": [
-        "src/lib/server/mutations/*"
-      ],
-      "@/queries/*": [
-        "src/lib/server/queries/*"
-      ],
-      "@/schemas/*": [
-        "src/lib/server/schemas/*"
-      ],
-      "@/types/*": [
-        "src/lib/types/*"
-      ],
-      "@/utils/*": [
-        "src/lib/utils/*"
-      ]
+      "@actions": ["src/lib/actions/index.ts"],
+      "@actions/*": ["src/lib/actions/*"],
+      "@components": ["src/lib/components/index.ts"],
+      "@components/*": ["src/lib/components/*"],
+      "@server": ["src/lib/server/index.ts"],
+      "@server/*": ["src/lib/server/*"],
+      "@mutations": ["src/lib/server/mutations/index.ts"],
+      "@mutations/*": ["src/lib/server/mutations/*"],
+      "@queries": ["src/lib/server/queries/index.ts"],
+      "@queries/*": ["src/lib/server/queries/*"],
+      "@schemas": ["src/lib/server/schemas/index.ts"],
+      "@schemas/*": ["src/lib/server/schemas/*"],
+      "@types": ["src/lib/types/index.ts"],
+      "@types/*": ["src/lib/types/*"],
+      "@utils": ["src/lib/utils/index.ts"],
+      "@utils/*": ["src/lib/utils/*"]
     }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }

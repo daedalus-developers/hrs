@@ -1,8 +1,8 @@
 import { Lucia, Session, User } from "lucia";
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
-import { sessions, users } from "@/schemas/user";
+import { sessions, users } from "@schemas/user";
 import { db } from "./db";
-import { SelectUser } from "@/types/user";
+import { SelectUser } from "@types";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
@@ -17,7 +17,6 @@ export const lucia = new Lucia(adapter, {
       // set to `true` when using HTTPS
       secure: process.env.NODE_ENV === "production",
     },
-
   },
   getUserAttributes: (attrs) => {
     return {
@@ -28,10 +27,9 @@ export const lucia = new Lucia(adapter, {
       emailVerified: attrs.emailVerified,
       role: attrs.role,
       createdAt: attrs.createdAt,
-      updatedAt: attrs.updatedAt
+      updatedAt: attrs.updatedAt,
     };
-  }
-
+  },
 });
 
 // IMPORTANT!
@@ -48,15 +46,15 @@ export const createSession = async (userId: string) => {
   cookies().set(
     sessionCookie.name,
     sessionCookie.value,
-    sessionCookie.attributes
-  )
-}
+    sessionCookie.attributes,
+  );
+};
 
 export const validateSession = cache(
   async (): Promise<{ session: Session | null; user: User | null }> => {
     const sessionId = cookies().get(lucia.sessionCookieName)?.value;
 
-    if (!sessionId) return { session: null, user: null }
+    if (!sessionId) return { session: null, user: null };
 
     const { session, user } = await lucia.validateSession(sessionId);
 
@@ -65,8 +63,8 @@ export const validateSession = cache(
       cookies().set(
         sessionCookie.name,
         sessionCookie.value,
-        sessionCookie.attributes
-      )
+        sessionCookie.attributes,
+      );
     }
 
     if (session && session.fresh) {
@@ -74,24 +72,23 @@ export const validateSession = cache(
       cookies().set(
         sessionCookie.name,
         sessionCookie.value,
-        sessionCookie.attributes
-      )
-
+        sessionCookie.attributes,
+      );
     }
-    return { session: session, user: user }
-  }
-)
+    return { session: session, user: user };
+  },
+);
 
 export const invalidateSession = async () => {
   const { session } = await validateSession();
-  if (!session) return
+  if (!session) return;
 
-  await lucia.invalidateSession(session.id)
+  await lucia.invalidateSession(session.id);
 
   const sessionCookie = lucia.createBlankSessionCookie();
   cookies().set(
     sessionCookie.name,
     sessionCookie.value,
-    sessionCookie.attributes
-  )
-}
+    sessionCookie.attributes,
+  );
+};

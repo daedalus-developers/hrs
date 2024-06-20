@@ -1,6 +1,6 @@
-import { api } from "@/lib/client";
-import Counter from "@/lib/components/counter";
-import ServerStatus from "@/lib/components/server-status";
+import { api } from "@utils/client";
+import Counter from "@components/counter";
+import ServerStatus from "@components/server-status";
 
 export default async function Home() {
   let status = "Not Connected";
