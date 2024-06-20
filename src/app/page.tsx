@@ -1,4 +1,4 @@
-import Counter from "@/lib/components/counter";
+import Counter from "@/components/counter";
 
 export default function Home() {
   return (
