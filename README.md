@@ -1,5 +1,8 @@
 # Hotel Reservation System
 
+## ERD v 0.1
+![image](https://github.com/daedalus-developers/hrs/assets/5866196/ee487ffd-6191-4798-b149-07cba268ac96)
+
 Stacks used:
 
 - [NextJS](https://github.com/vercel/next.js)
