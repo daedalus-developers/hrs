@@ -6,6 +6,7 @@
 Stacks used:
 
 - [NextJS](https://github.com/vercel/next.js)
+- [Next UI](https://nextui.org/)
 - [TailwindCSS](https://github.com/tailwindlabs/tailwindcss)
 - [Lucia](https://github.com/lucia-auth/lucia)
 - [Drizzle](https://github.com/drizzle-team/drizzle-orm)
@@ -15,9 +16,12 @@ Stacks used:
 
 ### Requirements
 
-- pnpm
-- node latest lts
-- postgresql
+- [PNPM](https://pnpm.io/installation)
+  **STRICTLY** use PNPM as your package manager when using this repo, otherwise, you'll run to dependencies issues.
+- [NODE](https://nodejs.org/en)
+  Use `latest LTS` version
+- [POSTGRESQL](https://www.postgresql.org/)
+  
 
 Copy `.env.example` to `.env` Using the following commands:
 
