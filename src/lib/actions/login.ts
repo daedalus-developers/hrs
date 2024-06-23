@@ -1,22 +1,35 @@
 "use server";
 
-import { createSession } from "@server/auth";
-import { queryEmail } from "@queries";
-import { type SelectUser } from "@types";
-import { Argon2id } from "@utils/argon2";
+import { lucia } from "@server/auth";
+import { loginSchema } from "@server/schemas";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export const login = async (prevState: any, formData: FormData) => {
+export const login = async (_: any, formData: FormData) => {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  const user: SelectUser[] = await queryEmail.execute({ email: email });
+  const res = await fetch('http://localhost:3000/api/auth/login', {
+    method: "POST",
+    mode: "same-origin",
+    credentials: "same-origin",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(
+      loginSchema.parse({
+        email: email,
+        password: password
+      }))
+  })
 
-  if (user.length == 0) return { status: 400, message: "Invalid email" };
+  const data = await res.json()
+  const response = { status: res.status, message: data.message }
 
-  const validPassword = await new Argon2id().verify(user[0].password, password);
+  const cookieHeader = res.headers.get("set-cookie")?.match(/auth_session=(.*?)(?=;)/);
+  if (!res.ok || !cookieHeader) return response
 
-  if (!validPassword) return { status: 400, message: "Invalid password" };
+  cookies().set(lucia.sessionCookieName, cookieHeader[1]);
 
-  await createSession(user[0].id);
-  return { status: 200, message: "Login successful!" };
+  redirect('/home')
 };

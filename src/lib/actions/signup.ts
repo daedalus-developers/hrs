@@ -1,55 +1,40 @@
 "use server";
 
-import { createSession } from "@server/auth";
-import { insertUser } from "@mutations";
-import { queryEmail } from "@queries";
-import { Argon2id } from "@utils/argon2";
-import { generateIdFromEntropySize } from "lucia";
-import { generateEmailVerificationCode } from "./verify";
-import { sendEmailVerificationCode } from "@server/mailer";
+import { lucia } from "@server/auth";
+import { signupSchema } from "@server/schemas";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-const isValidEmail = (email: string): boolean => {
-  return /.+@.+/.test(email);
-};
-
-export const signup = async (prevState: any, formData: FormData) => {
+export const signup = async (_: any, formData: FormData) => {
   const lastName = formData.get("lastName") as string;
   const firstName = formData.get("firstName") as string;
-  const email = formData.get("email");
-  const password = formData.get("password");
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
 
-  if (!email || typeof email !== "string" || !isValidEmail(email))
-    return { status: 400, message: "Invalid email" };
-  if (!password || typeof password !== "string" || password.length < 6)
-    return { status: 400, message: "Invalid password" };
+  const res = await fetch('http://localhost:3000/api/auth/signup', {
+    method: "POST",
+    mode: "same-origin",
+    credentials: "same-origin",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(
+      signupSchema.parse({
+        lastName: lastName,
+        firstName: firstName,
+        email: email,
+        password: password
+      }))
+  })
 
-  const result = await queryEmail.execute({ email: email });
-  if (result?.length > 0)
-    return { status: 400, message: "Email already exists" };
+  const data = await res.json()
+  const response = { status: res.status, message: data.message }
 
-  const userId = generateIdFromEntropySize(10);
+  const cookieHeader = res.headers.get("set-cookie")?.match(/auth_session=(.*?)(?=;)/);
+  if (!res.ok || !cookieHeader) return response
 
-  const passwordHash = await new Argon2id().hash(password);
+  cookies().set(lucia.sessionCookieName, cookieHeader[1]);
 
-  const user = {
-    id: userId,
-    lastName: lastName,
-    firstName: firstName,
-    email: email,
-    emailVerified: false,
-    password: passwordHash,
-  };
-
-  await insertUser(user); // Save user to DB
-
-  await createSession(userId); // Create session cookies
-
-  const verificationCode = await generateEmailVerificationCode(userId, email);
-  await sendEmailVerificationCode(
-    email,
-    verificationCode.code!,
-    verificationCode.expiresAt!.toString(),
-  );
-
-  return { status: 200, message: "Account successfully registered." };
+  redirect('/verify')
 };
+
