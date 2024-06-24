@@ -2,13 +2,15 @@ import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { updateEmailVerified } from "@server/mutations";
 import { queryVerificationCode } from "@server/queries";
 import { responseSchema, verifySchema } from "@server/schemas";
-import { HTTPException } from "hono/http-exception";
+import { ContextVars } from "@types";
+import { authMiddleware } from "../auth.middleware";
 
 const verifySpec = createRoute({
   method: 'post',
   path: 'verify',
   tags: ['Auth'],
   summary: 'Verify user email',
+  middleware: [authMiddleware],
   request: {
     body: {
       description: 'Request body',
@@ -27,10 +29,16 @@ const verifySpec = createRoute({
       },
       description: 'Success',
     },
+    400: {
+      content: {
+        "application/json": { schema: responseSchema },
+      },
+      description: 'Bad request',
+    },
   },
 })
 
-const verify = new OpenAPIHono().openapi(verifySpec, async (c) => {
+const verify = new OpenAPIHono<{ Variables: ContextVars }>().openapi(verifySpec, async (c) => {
   const { userId, code } = c.req.valid('json');
 
   const verificationCodes = await queryVerificationCode.execute({
@@ -38,11 +46,7 @@ const verify = new OpenAPIHono().openapi(verifySpec, async (c) => {
     code: code,
   });
 
-  if (verificationCodes.length == 0) {
-    throw new HTTPException(400, {
-      message: 'Invalid verification code',
-    });
-  }
+  if (verificationCodes.length == 0) return c.json({ message: "Invalid verification code" }, 400)
 
   await updateEmailVerified(userId);
 

@@ -1,5 +1,7 @@
 import { relations } from "drizzle-orm";
 import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { z } from "zod";
 
 export const users = pgTable("users", {
   id: text("id").primaryKey(),
@@ -7,7 +9,7 @@ export const users = pgTable("users", {
   firstName: text("first_name").notNull(),
   email: text("email").notNull().unique(),
   emailVerified: boolean('email_verified').default(false),
-  password: text("password").notNull(),
+  password: text("password"),
   role: text('role', { enum: ['admin', 'user'] })
     .default('user'),
   createdAt: timestamp("created_at").defaultNow(),
@@ -61,3 +63,32 @@ export const verificationCodesToUsers = relations(verificationCodes, ({ one }) =
     references: [users.id]
   })
 }))
+
+const insertUserSchema = createInsertSchema(users);
+const insertSessionSchema = createInsertSchema(sessions);
+const insertVerCodeSchema = createInsertSchema(verificationCodes)
+
+const selectUserPickSchema = createSelectSchema(users, {
+  password: z.string().nullish(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date()
+});
+
+const selectUserSchema = selectUserPickSchema.pick({
+  id: true,
+  lastName: true,
+  firstName: true,
+  email: true,
+  emailVerified: true,
+  role: true,
+  createdAt: true,
+  updatedAt: true
+})
+
+const selectSessionSchema = createSelectSchema(sessions)
+const selectVerCodeSchema = createSelectSchema(verificationCodes)
+
+export {
+  insertUserSchema, insertSessionSchema, insertVerCodeSchema,
+  selectUserSchema, selectSessionSchema, selectVerCodeSchema
+}

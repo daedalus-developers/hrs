@@ -1,29 +1,21 @@
 "use server";
 
-import { verifySchema } from "@server/schemas";
 import { redirect } from "next/navigation";
+import { client } from "../client/hono";
 
 export const verifyAccount = async (_: any, formData: FormData) => {
   const userId = formData.get("userId") as string;
   const code = formData.get("code") as string;
 
-  const res = await fetch('http://localhost:3000/api/auth/verify', {
-    method: "POST",
-    mode: "same-origin",
-    credentials: "same-origin",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(
-      verifySchema.parse({
-        userId: userId,
-        code: code
-      }))
+  const res = await client.api.auth.verify.$post({
+    json: {
+      userId: userId,
+      code: code
+    }
   })
 
-  const data = await res.json()
+  const data = await res.text()
+  if (!res.ok) return { status: res.status, message: JSON.parse(data).message }
 
-  if (res.ok) redirect('/home')
-
-  return { status: res.status, message: data.message }
+  redirect('/home')
 };

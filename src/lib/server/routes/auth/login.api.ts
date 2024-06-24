@@ -3,16 +3,16 @@ import { lucia } from "@server/auth";
 import { queryEmail } from "@server/queries";
 import { responseSchema } from "@server/schemas";
 import { loginSchema } from "@server/schemas/auth";
-import { SelectUser } from "@types";
+import { ContextVars, InsertUser } from "@types";
 import { Argon2id } from "@utils/argon2";
-import { setCookie } from "hono/cookie";
-import { HTTPException } from "hono/http-exception";
+import { authMiddleware } from "../auth.middleware";
 
 const loginSpec = createRoute({
   method: 'post',
   path: 'login',
   tags: ['Auth'],
   summary: 'Authorize user',
+  middleware: [authMiddleware],
   request: {
     body: {
       description: 'Request body',
@@ -31,37 +31,33 @@ const loginSpec = createRoute({
       },
       description: 'Success',
     },
+    400: {
+      content: {
+        "application/json": { schema: responseSchema },
+      },
+      description: 'Bad request',
+    },
+
   },
 })
 
-const login = new OpenAPIHono().openapi(loginSpec, async (c) => {
+const login = new OpenAPIHono<{ Variables: ContextVars }>().openapi(loginSpec, async (c) => {
   const { email, password } = c.req.valid('json');
 
-  const user: SelectUser[] = await queryEmail.execute({ email: email });
+  const user: InsertUser[] = await queryEmail.execute({ email: email });
 
-  if (user.length == 0) {
-    throw new HTTPException(400, {
-      message: 'Invalid email.'
-    });
-  }
+  if (user.length == 0) return c.json({ message: "Invalid email" }, 400)
 
-  const validPassword = await new Argon2id().verify(user[0].password, password);
 
-  if (!validPassword) {
-    throw new HTTPException(400, {
-      message: 'Invalid password.'
-    });
-  }
+  const validPassword = await new Argon2id().verify(user[0].password!, password);
+
+  if (!validPassword) return c.json({ message: "Invalid password" }, 400)
 
   const session = await lucia.createSession(user[0].id, {});
   const sessionCookie = lucia.createSessionCookie(session.id);
-  setCookie(c, sessionCookie.name, sessionCookie.value, {
-    ...sessionCookie.attributes,
-    sameSite: 'Strict',
-  });
+  c.header('Set-Cookie', sessionCookie.serialize(), { append: true });
 
-
-  return c.json({ message: "Login successful" })
+  return c.json({ message: "Login successful" }, 200)
 })
 
 export { login }

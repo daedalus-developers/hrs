@@ -1,5 +1,5 @@
 import Login from "@components/Login";
-import { getUser, lucia } from "@server/auth";
+import { getUser } from "@server/auth";
 import { redirect } from "next/navigation";
 
 export default async function page() {

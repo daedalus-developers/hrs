@@ -1,26 +1,18 @@
 "use server"
 
-import { resendSchema } from "@server/schemas";
+import { client } from "../client/hono";
 
 export const resendCode = async (_: any, formData: FormData) => {
   const userId = formData.get("userId") as string;
   const email = formData.get("email") as string;
 
-  const res = await fetch('http://localhost:3000/api/auth/resend', {
-    method: "POST",
-    mode: "same-origin",
-    credentials: "same-origin",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(
-      resendSchema.parse({
-        userId: userId,
-        email: email
-      }))
+  const res = await client.api.auth.resend.$post({
+    json: {
+      userId: userId,
+      email: email
+    }
   })
 
-  const data = await res.json()
-
-  return { status: res.status, message: data.message }
+  const data = await res.text()
+  return { status: res.status, message: JSON.parse(data).message }
 };

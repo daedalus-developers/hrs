@@ -1,35 +1,26 @@
 "use server";
 
-import { lucia } from "@server/auth";
-import { loginSchema } from "@server/schemas";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { client } from "../client/hono";
+import { cookies } from "next/headers";
 
 export const login = async (_: any, formData: FormData) => {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  const res = await fetch('http://localhost:3000/api/auth/login', {
-    method: "POST",
-    mode: "same-origin",
-    credentials: "same-origin",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(
-      loginSchema.parse({
+  const res = await client.api.auth.login.$post(
+    {
+      json: {
         email: email,
         password: password
-      }))
-  })
+      }
+    }
+  )
 
-  const data = await res.json()
-  const response = { status: res.status, message: data.message }
+  cookies().set('auth-cookie', res.headers.getSetCookie()[0])
 
-  const cookieHeader = res.headers.get("set-cookie")?.match(/auth_session=(.*?)(?=;)/);
-  if (!res.ok || !cookieHeader) return response
-
-  cookies().set(lucia.sessionCookieName, cookieHeader[1]);
+  const data = await res.text()
+  if (!res.ok) return { status: res.status, message: JSON.parse(data).message }
 
   redirect('/home')
 };

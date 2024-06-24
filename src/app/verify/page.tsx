@@ -5,10 +5,9 @@ import { getUser } from "@server/auth";
 import { redirect } from "next/navigation";
 
 export default async function page() {
-  const { user } = await getUser()
-  if (!user) redirect("/login");
-  if (user!.emailVerified) redirect("/home");
-
+  const { user } = await getUser();
+  if (!user) redirect('/login')
+  if (user.emailVerified) redirect('/home')
   return (
     <div>
       <VerificationForm userId={user!.id} />

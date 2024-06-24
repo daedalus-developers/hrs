@@ -1,8 +1,9 @@
-import { Lucia, User } from "lucia";
+import { Lucia } from "lucia";
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
-import { sessions, users } from "@schemas/user";
+import { selectUserSchema, sessions, users } from "@schemas/user";
 import { db } from "./db";
 import { SelectUser } from "@types";
+import { client } from "../client/hono";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
@@ -38,14 +39,16 @@ declare module "lucia" {
 }
 
 export const getUser = cache(
-  async (): Promise<{ user: User | null }> => {
+  async (): Promise<{ user: SelectUser | null }> => {
+    const res = await client.api.auth.me.$get({}, {
+      headers: {
+        'Cookie': cookies().get('auth-cookie')?.value ?? ''
+      }
+    })
+    if (!res.ok) return { user: null }
+    const jsonData = await res.json()
 
-    const sessionId = cookies().get(lucia.sessionCookieName)?.value;
-
-    if (!sessionId) return { user: null };
-
-    const { user } = await lucia.validateSession(sessionId);
-
-    return { user: user };
-  },
+    const user = selectUserSchema.parse(jsonData)
+    return { user: user }
+  }
 );

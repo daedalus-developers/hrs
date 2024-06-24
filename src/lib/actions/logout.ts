@@ -1,17 +1,11 @@
 "use server";
 
-import { lucia } from "@server/auth";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { client } from "../client/hono";
+import { cookies } from "next/headers";
 
 export const logout = async (_: FormData) => {
-  await fetch('http://localhost:3000/api/auth/logout', {
-    method: "GET",
-    mode: "same-origin",
-    credentials: "same-origin",
-  })
-
-  cookies().delete(lucia.sessionCookieName)
-
+  client.api.auth.logout.$get()
+  cookies().delete('auth-cookie')
   redirect('/login')
 };

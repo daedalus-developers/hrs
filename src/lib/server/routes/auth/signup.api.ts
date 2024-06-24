@@ -6,16 +6,17 @@ import { queryEmail } from "@server/queries";
 import { responseSchema } from "@server/schemas";
 import { signupSchema } from "@server/schemas/auth";
 import { generateEmailVerificationCode } from "@server/services/verification";
+import { ContextVars } from "@types";
 import { Argon2id } from "@utils/argon2";
-import { setCookie } from "hono/cookie";
-import { HTTPException } from "hono/http-exception";
 import { generateIdFromEntropySize } from "lucia";
+import { authMiddleware } from "../auth.middleware";
 
 const signupSpec = createRoute({
   method: 'post',
   path: 'signup',
   tags: ['Auth'],
   summary: 'Register user',
+  middleware: [authMiddleware],
   request: {
     body: {
       description: 'Request body',
@@ -32,18 +33,20 @@ const signupSpec = createRoute({
       },
       description: 'Success',
     },
+    400: {
+      content: {
+        "application/json": { schema: responseSchema },
+      },
+      description: 'Bad request',
+    },
   },
 })
 
-const signup = new OpenAPIHono().openapi(signupSpec, async (c) => {
+const signup = new OpenAPIHono<{ Variables: ContextVars }>().openapi(signupSpec, async (c) => {
   const { lastName, firstName, email, password } = c.req.valid('json');
 
   const result = await queryEmail.execute({ email: email });
-  if (result?.length > 0) {
-    throw new HTTPException(400, {
-      message: 'Email already taken.',
-    });
-  }
+  if (result?.length > 0) return c.json({ message: "Email already taken" }, 400)
 
   const userId = generateIdFromEntropySize(10);
 
@@ -62,10 +65,8 @@ const signup = new OpenAPIHono().openapi(signupSpec, async (c) => {
 
   const session = await lucia.createSession(userId, {});
   const sessionCookie = lucia.createSessionCookie(session.id);
-  setCookie(c, sessionCookie.name, sessionCookie.value, {
-    ...sessionCookie.attributes,
-    sameSite: 'Strict',
-  });
+
+  c.header('Set-Cookie', sessionCookie.serialize(), { append: true });
 
   const verificationCode = await generateEmailVerificationCode(userId, email);
   await sendEmailVerificationCode(

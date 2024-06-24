@@ -1,6 +1,6 @@
 "use client";
 import { useFormState } from "react-dom";
-import { login } from "@actions/login";
+import { login } from "@actions";
 import { Input } from "@nextui-org/react";
 import { useState } from "react";
 import { EyeSlashFilledIcon } from "./icons/EyeSlashFilledIcon";
