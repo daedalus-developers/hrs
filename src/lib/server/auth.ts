@@ -38,6 +38,11 @@ declare module "lucia" {
   }
 }
 
+/** 
+* User references SelectUser references selectUserSchema references users (table)
+*
+* users (table) => selectUserSchema => SelectUser => User */
+
 export const getUser = cache(
   async (): Promise<{ user: SelectUser | null }> => {
     const res = await client.api.auth.me.$get({}, {

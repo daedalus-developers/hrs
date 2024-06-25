@@ -68,22 +68,10 @@ const insertUserSchema = createInsertSchema(users);
 const insertSessionSchema = createInsertSchema(sessions);
 const insertVerCodeSchema = createInsertSchema(verificationCodes)
 
-const selectUserPickSchema = createSelectSchema(users, {
-  password: z.string().nullish(),
+const selectUserSchema = createSelectSchema(users, {
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date()
-});
-
-const selectUserSchema = selectUserPickSchema.pick({
-  id: true,
-  lastName: true,
-  firstName: true,
-  email: true,
-  emailVerified: true,
-  role: true,
-  createdAt: true,
-  updatedAt: true
-})
+}).omit({ password: true });
 
 const selectSessionSchema = createSelectSchema(sessions)
 const selectVerCodeSchema = createSelectSchema(verificationCodes)

@@ -1,7 +1,7 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { lucia } from "@server/auth";
 import { responseSchema, selectUserSchema } from "@server/schemas";
-import { ContextVars, SelectUser } from "@types";
+import { ContextVars } from "@types";
 import { authMiddleware } from "../auth.middleware";
 
 const meSpec = createRoute({
@@ -39,7 +39,6 @@ const me = new OpenAPIHono<{ Variables: ContextVars }>().openapi(meSpec, async (
   if (!user) return c.json({ message: "Session invalid" }, 401)
 
   const data = selectUserSchema.parse(user)
-
   return c.json(data, 200);
 })
 

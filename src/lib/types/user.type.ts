@@ -1,4 +1,4 @@
-import { insertSessionSchema, insertUserSchema, insertVerCodeSchema, selectSessionSchema, selectUserSchema, selectVerCodeSchema, sessions, users, verificationCodes } from "@schemas/user";
+import { insertSessionSchema, insertUserSchema, insertVerCodeSchema, selectSessionSchema, selectUserSchema, selectVerCodeSchema } from "@schemas/user";
 import { z } from "zod";
 
 export type InsertUser = z.infer<typeof insertUserSchema>
