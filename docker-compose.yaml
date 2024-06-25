@@ -1,0 +1,29 @@
+services:
+  # PostgresSQL
+  db:
+    image: postgres:latest
+    restart: always
+    container_name: db-hrs
+    environment:
+      POSTGRES_USER: "${DB_USER:-postgres}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:-postgres}"
+      POSTGRES_DB: "${DB_DATABASE:-hrs}"
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    command:
+      - postgres
+      - -c
+      - wal_level=logical
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USERNAME:-superhono}",
+          "-d",
+          "${DB_DATABASE:-coolify}",
+        ]
+      interval: 5s
+      retries: 10
+      timeout: 2s
