@@ -12,7 +12,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:pull": "drizzle-kit introspect",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio --verbose"
   },
   "dependencies": {
     "@hono/swagger-ui": "^0.2.2",
@@ -23,12 +24,14 @@
     "@oslojs/crypto": "^0.2.0",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.31.2",
+    "drizzle-zod": "^0.5.1",
     "framer-motion": "^11.2.11",
     "hono": "^4.4.7",
     "lucia": "^3.2.0",
     "next": "14.2.4",
     "nodemailer": "^6.9.14",
     "pg": "^8.12.0",
+    "postgres": "^3.4.4",
     "react": "^18",
     "react-dom": "^18",
     "zod": "^3.23.8",
@@ -46,6 +49,7 @@
     "eslint-config-next": "14.2.4",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
+    "tsx": "^4.15.7",
     "typescript": "^5"
   },
   "engines": {
