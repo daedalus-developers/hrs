@@ -1,22 +1,26 @@
 "use server";
 
-import { createSession } from "@server/auth";
-import { queryEmail } from "@queries";
-import { type SelectUser } from "@types";
-import { Argon2id } from "@utils/argon2";
+import { redirect } from "next/navigation";
+import { client } from "../client/hono";
+import { cookies } from "next/headers";
 
-export const login = async (prevState: any, formData: FormData) => {
+export const login = async (_: any, formData: FormData) => {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  const user: SelectUser[] = await queryEmail.execute({ email: email });
+  const res = await client.api.auth.login.$post(
+    {
+      json: {
+        email: email,
+        password: password
+      }
+    }
+  )
 
-  if (user.length == 0) return { status: 400, message: "Invalid email" };
+  cookies().set('auth-cookie', res.headers.getSetCookie()[0])
 
-  const validPassword = await new Argon2id().verify(user[0].password, password);
+  const data = await res.text()
+  if (!res.ok) return { status: res.status, message: JSON.parse(data).message }
 
-  if (!validPassword) return { status: 400, message: "Invalid password" };
-
-  await createSession(user[0].id);
-  return { status: 200, message: "Login successful!" };
+  redirect('/home')
 };

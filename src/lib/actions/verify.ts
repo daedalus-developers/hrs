@@ -1,56 +1,21 @@
 "use server";
 
-import { updateEmailVerified } from "@mutations";
-import { queryVerificationCode } from "@queries";
-import { generateRandomString, alphabet } from "@oslojs/crypto/random";
-import { deleteUserCode, insertCode } from "@mutations";
-import type { InsertCode } from "@types";
-import { generateIdFromEntropySize } from "lucia";
-import { sendEmailVerificationCode } from "@server/mailer";
-import { TimeSpan, createDate } from "@utils/timespan";
+import { redirect } from "next/navigation";
+import { client } from "../client/hono";
 
-export const verifyAccount = async (prevState: any, formData: FormData) => {
+export const verifyAccount = async (_: any, formData: FormData) => {
   const userId = formData.get("userId") as string;
   const code = formData.get("code") as string;
-  const verificationCodes = await queryVerificationCode.execute({
-    userId: userId,
-    code: code,
-  });
-  if (verificationCodes.length == 0)
-    return { status: 400, message: "Invalid verification code" };
-  await updateEmailVerified(userId);
 
-  return { status: 200, message: "Account successfully verified." };
-};
+  const res = await client.api.auth.verify.$post({
+    json: {
+      userId: userId,
+      code: code
+    }
+  })
 
-export const resendVerificationCode = async (formData: FormData) => {
-  const userId = formData.get("userId") as string;
-  const email = formData.get("email") as string;
-  const verificationCode = await generateEmailVerificationCode(userId, email);
-  await sendEmailVerificationCode(
-    email,
-    verificationCode.code!,
-    verificationCode.expiresAt!.toString(),
-  );
+  const data = await res.text()
+  if (!res.ok) return { status: res.status, message: JSON.parse(data).message }
 
-  console.log("Resent verification code");
-};
-
-export const generateEmailVerificationCode = async (
-  userId: string,
-  email: string,
-): Promise<InsertCode> => {
-  await deleteUserCode(userId);
-  const code = generateRandomString(8, alphabet("0-9"));
-  const verificationCode: InsertCode = {
-    id: generateIdFromEntropySize(10),
-    userId: userId,
-    email,
-    code,
-    expiresAt: createDate(new TimeSpan(15, "m")), // 15 minutes
-  };
-
-  await insertCode(verificationCode);
-
-  return verificationCode;
+  redirect('/home')
 };

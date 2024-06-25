@@ -1,8 +1,9 @@
-import { Lucia, Session, User } from "lucia";
+import { Lucia } from "lucia";
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
-import { sessions, users } from "@schemas/user";
+import { selectUserSchema, sessions, users } from "@schemas/user";
 import { db } from "./db";
 import { SelectUser } from "@types";
+import { client } from "../client/hono";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
@@ -10,9 +11,6 @@ export const adapter = new DrizzlePostgreSQLAdapter(db, sessions, users);
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
-    // this sets cookies with super long expiration
-    // since Next.js doesn't allow Lucia to extend cookie expiration when rendering pages
-    expires: false,
     attributes: {
       // set to `true` when using HTTPS
       secure: process.env.NODE_ENV === "production",
@@ -40,55 +38,22 @@ declare module "lucia" {
   }
 }
 
-export const createSession = async (userId: string) => {
-  const session = await lucia.createSession(userId, {});
-  const sessionCookie = lucia.createSessionCookie(session.id);
-  cookies().set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes,
-  );
-};
+/** 
+* User references SelectUser references selectUserSchema references users (table)
+*
+* users (table) => selectUserSchema => SelectUser => User */
 
-export const validateSession = cache(
-  async (): Promise<{ session: Session | null; user: User | null }> => {
-    const sessionId = cookies().get(lucia.sessionCookieName)?.value;
+export const getUser = cache(
+  async (): Promise<{ user: SelectUser | null }> => {
+    const res = await client.api.auth.me.$get({}, {
+      headers: {
+        'Cookie': cookies().get('auth-cookie')?.value ?? ''
+      }
+    })
+    if (!res.ok) return { user: null }
+    const jsonData = await res.json()
 
-    if (!sessionId) return { session: null, user: null };
-
-    const { session, user } = await lucia.validateSession(sessionId);
-
-    if (!session) {
-      const sessionCookie = lucia.createBlankSessionCookie();
-      cookies().set(
-        sessionCookie.name,
-        sessionCookie.value,
-        sessionCookie.attributes,
-      );
-    }
-
-    if (session && session.fresh) {
-      const sessionCookie = lucia.createSessionCookie(session.id);
-      cookies().set(
-        sessionCookie.name,
-        sessionCookie.value,
-        sessionCookie.attributes,
-      );
-    }
-    return { session: session, user: user };
-  },
+    const user = selectUserSchema.parse(jsonData)
+    return { user: user }
+  }
 );
-
-export const invalidateSession = async () => {
-  const { session } = await validateSession();
-  if (!session) return;
-
-  await lucia.invalidateSession(session.id);
-
-  const sessionCookie = lucia.createBlankSessionCookie();
-  cookies().set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes,
-  );
-};

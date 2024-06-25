@@ -1,11 +1,4 @@
-import { redirect } from "next/navigation";
-import { invalidateSession } from "@server/auth";
-
-export const logout = async () => {
-  "use server";
-  await invalidateSession();
-  redirect("/login");
-};
+import { logout } from "@actions/logout";
 
 export default function Logout() {
   return (
