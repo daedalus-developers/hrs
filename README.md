@@ -1,11 +1,13 @@
 # Hotel Reservation System
 
 ## ERD v 0.1
+
 ![image](https://github.com/daedalus-developers/hrs/assets/5866196/ee487ffd-6191-4798-b149-07cba268ac96)
 
 Stacks used:
 
 - [NextJS](https://github.com/vercel/next.js)
+- [ElysiaJS](https://elyisajs.com)
 - [Next UI](https://nextui.org/)
 - [TailwindCSS](https://github.com/tailwindlabs/tailwindcss)
 - [Lucia](https://github.com/lucia-auth/lucia)
@@ -21,7 +23,6 @@ Stacks used:
 - [NODE](https://nodejs.org/en)
   Use `latest LTS` version
 - [POSTGRESQL](https://www.postgresql.org/)
-  
 
 Copy `.env.example` to `.env` Using the following commands:
 
