@@ -38,22 +38,23 @@ declare module "lucia" {
   }
 }
 
-/** 
-* User references SelectUser references selectUserSchema references users (table)
-*
-* users (table) => selectUserSchema => SelectUser => User */
+/**
+ * User references SelectUser references selectUserSchema references users (table)
+ *
+ * users (table) => selectUserSchema => SelectUser => User */
 
-export const getUser = cache(
-  async (): Promise<{ user: SelectUser | null }> => {
-    const res = await client.api.auth.me.$get({}, {
+export const getUser = cache(async (): Promise<{ user: SelectUser | null }> => {
+  const res = await client.api.auth.me.$get(
+    {},
+    {
       headers: {
-        'Cookie': cookies().get('auth-cookie')?.value ?? ''
-      }
-    })
-    if (!res.ok) return { user: null }
-    const jsonData = await res.json()
+        Cookie: cookies().get("auth-cookie")?.value ?? "",
+      },
+    },
+  );
+  if (!res.ok) return { user: null };
+  const jsonData = await res.json();
 
-    const user = selectUserSchema.parse(jsonData)
-    return { user: user }
-  }
-);
+  const user = selectUserSchema.parse(jsonData);
+  return { user: user };
+});
