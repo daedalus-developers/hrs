@@ -1,7 +1,7 @@
 # Hotel Reservation System
 
 ## ERD v 0.1
-![image](https://github.com/daedalus-developers/hrs/assets/5866196/ee487ffd-6191-4798-b149-07cba268ac96)
+![image](/docs/media/erd.png)
 
 Stacks used:
 
@@ -33,6 +33,7 @@ SMTP_PORT=587
 SMTP_USER=your_email@example.com
 SMTP_PASSWORD=password
 
+SERVER_HOST=http://localhost:3000 # set the port where your next app is running
 DB_URL=postgres://postgres:postgres@locahost:5432/hrs # set your db url
 ```
 
