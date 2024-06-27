@@ -3,7 +3,7 @@ import { lucia } from '@server/auth';
 import { sendEmailVerificationCode } from '@server/mailer';
 import { insertUser } from '@server/mutations';
 import { queryEmail } from '@server/queries';
-import { responseSchema } from '@server/schemas';
+import { ApiResponseSchema, responseSchema } from '@server/schemas';
 import { SignupSchema, signupSchema } from '@server/schemas/auth';
 import { generateEmailVerificationCode } from '@server/services/verification';
 import { ContextVars } from '@types';
@@ -83,7 +83,7 @@ const signup = new OpenAPIHono<{ Variables: ContextVars }>({
 		verificationCode.expiresAt!.toString()
 	);
 
-	return c.json({ message: 'Signup sucessful.' });
+	return c.json({ message: 'Signup sucessful.' }, 200);
 });
 
 export { signup };
